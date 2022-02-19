@@ -1,8 +1,7 @@
+import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import { ChakraProvider } from "@chakra-ui/react";
-import theme from "../theme";
-import { Auth0Provider } from "@auth0/auth0-react";
 import { useEffect } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
+import theme from "../theme";
 
 function MyApp({
   Component,
@@ -40,7 +39,7 @@ const LoginHandle: React.VFC<{ router: any }> = ({ router }) => {
         router.replace('/article')
       }
     }
-  }, [router.pathname, isAuthenticated, isLoading]);
+  }, [router, isAuthenticated, isLoading]);
   return <></>;
 };
 

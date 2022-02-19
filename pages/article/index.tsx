@@ -1,3 +1,4 @@
+import { useAuth0 } from "@auth0/auth0-react";
 import {
   Box,
   Heading,
@@ -9,11 +10,10 @@ import {
   Tr,
   Link,
 } from "@chakra-ui/react";
-import CommonLayout from "../../components/templates/commonLayout";
-import NextLink from "next/link";
 import { GetStaticProps } from "next";
+import NextLink from "next/link";
 import { getApi } from "../../api/api";
-import { useAuth0 } from "@auth0/auth0-react";
+import CommonLayout from "../../components/templates/commonLayout";
 
 interface Category {
   id: string;

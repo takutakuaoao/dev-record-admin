@@ -1,3 +1,4 @@
+import { ParsedUrlQuery } from "querystring";
 import {
   Alert,
   AlertIcon,
@@ -11,7 +12,6 @@ import {
 } from "@chakra-ui/react";
 import { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
-import { ParsedUrlQuery } from "querystring";
 import { ReactElement, useEffect, useState } from "react";
 import { getApi } from "../../../api/api";
 import SelectItem from "../../../components/atoms/selectItem";

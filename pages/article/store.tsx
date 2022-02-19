@@ -11,15 +11,16 @@ import {
   Alert,
   AlertIcon,
 } from "@chakra-ui/react";
+import Link from "next/link";
+import "@fontsource/roboto";
 import React, { ReactElement, useEffect, useState, VFC } from "react";
 import { useDropzone } from "react-dropzone";
-import "@fontsource/roboto";
-import Link from "next/link";
+
 import { getApi } from "../../api/api";
-import H1 from "../../components/molecules/heading";
 import SelectItem from "../../components/atoms/selectItem";
-import SelectBox from "../../components/molecules/selectBox";
 import TextArea from "../../components/atoms/textArea";
+import H1 from "../../components/molecules/heading";
+import SelectBox from "../../components/molecules/selectBox";
 import CommonLayout from "../../components/templates/commonLayout";
 import { useFormValue } from "../../hooks/useFormValue";
 import { usePostSubmit } from "../../hooks/useSubmit";
@@ -91,7 +92,7 @@ const Index: React.VFC = () => {
       {canRender ? (
         <>
           <HeadingArea />
-          {(draftSubmit.isComplete || publicSubmit.isComplete) ? (
+          {draftSubmit.isComplete || publicSubmit.isComplete ? (
             <Box mb="6">
               <Alert status="success">
                 <AlertIcon />
@@ -191,14 +192,14 @@ const ActionArea: React.VFC<ActionAreaProps> = ({
           {selectList}
         </SelectBox>
       </Box>
-      <Spacer />
+      {/* <Spacer />
       <Link href="/article/preview">
         <a target="_blank">
           <Button bg="#445273" color="white">
             Preview
           </Button>
         </a>
-      </Link>
+      </Link> */}
     </Flex>
   );
 };

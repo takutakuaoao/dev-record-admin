@@ -9,12 +9,11 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
+import { GetStaticProps } from "next";
 import NextLink from "next/link";
+import React from "react";
 import { getApi } from "../../api/api";
 import CommonLayout from "../../components/templates/commonLayout";
-import process from "node:process";
-import React from "react";
-import { GetStaticProps } from "next";
 
 interface Category {
   id: string;

@@ -1,3 +1,4 @@
+import { ParsedUrlQuery } from "querystring";
 import {
   Alert,
   AlertIcon,
@@ -7,14 +8,13 @@ import {
   Heading,
   Input,
 } from "@chakra-ui/react";
+import { GetStaticPaths, GetStaticProps } from "next";
 import { NextParsedUrlQuery } from "next/dist/server/request-meta";
 import React from "react";
 import { getApi } from "../../../api/api";
 import CommonLayout from "../../../components/templates/commonLayout";
 import { useFormValue } from "../../../hooks/useFormValue";
 import { usePutSubmit } from "../../../hooks/useSubmit";
-import { ParsedUrlQuery } from "querystring";
-import { GetStaticPaths, GetStaticProps } from "next";
 
 interface Category {
   id: string;
