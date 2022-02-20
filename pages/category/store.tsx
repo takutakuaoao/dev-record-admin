@@ -2,11 +2,11 @@ import { Alert, AlertIcon, Box, Button, Flex, Heading, Input } from "@chakra-ui/
 import React from "react"
 import CommonLayout from "../../components/templates/commonLayout"
 import { useFormValue } from "../../hooks/useFormValue"
-import { usePutSubmit } from "../../hooks/useSubmit"
+import { usePostSubmit } from "../../hooks/useSubmit"
 
 const Store: React.VFC = () => {
     const { state, handleChange } = useFormValue({ "name": "", "slug": "" })
-    const { submit, isComplete } = usePutSubmit(process.env.NEXT_PUBLIC_API_URL!, process.env.NEXT_PUBLIC_API_CATEGORY_STORE!, state)
+    const { submit, isComplete } = usePostSubmit(process.env.NEXT_PUBLIC_API_URL!, process.env.NEXT_PUBLIC_API_CATEGORY_STORE!, state)
 
     return (
         <CommonLayout>
