@@ -35,6 +35,14 @@ const Sidebar: React.VFC = () => {
             </Link>
           </NextLink>
         </List>
+        <ListItem>Image</ListItem>
+        <List px="3" mb="4">
+          <NextLink href="/image/store" passHref>
+            <Link>
+              <ListItem>New</ListItem>
+            </Link>
+          </NextLink>
+        </List>
         <ListItem
           onClick={() =>
             logout({
