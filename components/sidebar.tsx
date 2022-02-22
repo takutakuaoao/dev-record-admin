@@ -7,9 +7,11 @@ const Sidebar: React.VFC = () => {
   const { logout } = useAuth0();
 
   return (
-    <Box bg="#445273" w="100%" p="4" color="white">
+    <Box bg="#445273" w="100%" px="4" py="8" color="white">
       <List p="4" cursor="pointer">
-        <ListItem>Article</ListItem>
+        <ListItem fontWeight="bold" fontSize="xl">
+          Article
+        </ListItem>
         <List px="3" mb="4">
           <NextLink href="/article" passHref>
             <Link>
@@ -22,7 +24,9 @@ const Sidebar: React.VFC = () => {
             </Link>
           </NextLink>
         </List>
-        <ListItem>Category</ListItem>
+        <ListItem fontWeight="bold" fontSize="xl">
+          Category
+        </ListItem>
         <List px="3" mb="4">
           <NextLink href="/category" passHref>
             <Link>
@@ -35,8 +39,15 @@ const Sidebar: React.VFC = () => {
             </Link>
           </NextLink>
         </List>
-        <ListItem>Image</ListItem>
+        <ListItem fontWeight="bold" fontSize="xl">
+          Image
+        </ListItem>
         <List px="3" mb="4">
+          <NextLink href="/image" passHref>
+            <Link>
+              <ListItem>Index</ListItem>
+            </Link>
+          </NextLink>
           <NextLink href="/image/store" passHref>
             <Link>
               <ListItem>New</ListItem>
@@ -44,6 +55,8 @@ const Sidebar: React.VFC = () => {
           </NextLink>
         </List>
         <ListItem
+          fontWeight="bold"
+          fontSize="xl"
           onClick={() =>
             logout({
               returnTo:

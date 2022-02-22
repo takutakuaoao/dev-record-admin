@@ -38,8 +38,6 @@ interface Props {
 }
 
 const Index: React.VFC<Props> = ({ articles }) => {
-  // const { isAuthenticated, isLoading } = useAuth0();
-  // console.log(isAuthenticated, isLoading);
   return (
     <CommonLayout>
       <Box mb={8}>
