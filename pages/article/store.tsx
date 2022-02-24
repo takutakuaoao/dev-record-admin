@@ -19,7 +19,7 @@ import Link from "next/link";
 import "@fontsource/roboto";
 import React, { ReactElement, useEffect, useState, VFC } from "react";
 import { useDropzone } from "react-dropzone";
-
+import { ImCancelCircle } from "react-icons/im";
 import { getApi } from "../../api/api";
 import SelectItem from "../../components/atoms/selectItem";
 import TextArea from "../../components/atoms/textArea";
@@ -28,7 +28,6 @@ import SelectBox from "../../components/molecules/selectBox";
 import CommonLayout from "../../components/templates/commonLayout";
 import { useFormValue } from "../../hooks/useFormValue";
 import { usePostSubmit } from "../../hooks/useSubmit";
-import { ImCancelCircle } from "react-icons/im";
 
 interface Category {
   id: string;
