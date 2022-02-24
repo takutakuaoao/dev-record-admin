@@ -7,6 +7,10 @@ export const useFormValue = <T>(
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleSelectChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   handleTextAreaChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  handleRawValueChange: (
+    fieldName: string,
+    setValue: string | number | boolean
+  ) => void;
 } => {
   const [state, setState] = useState<T>(initial);
 
@@ -29,5 +33,13 @@ export const useFormValue = <T>(
     setState({ ...state, [name]: event.target.value });
   };
 
-  return { state, handleChange, handleSelectChange, handleTextAreaChange };
+  const handleRawValueChange = (
+    fieldName: string,
+    setValue: string | number | boolean
+  ): void => {
+    console.log(fieldName, setValue);
+    setState({ ...state, [fieldName]: setValue });
+  };
+
+  return { state, handleChange, handleSelectChange, handleTextAreaChange, handleRawValueChange };
 };

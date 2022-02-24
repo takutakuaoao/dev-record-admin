@@ -10,7 +10,11 @@ import {
   Text,
   Alert,
   AlertIcon,
+  IconButton,
+  Image,
+  Icon,
 } from "@chakra-ui/react";
+import { GetStaticProps } from "next";
 import Link from "next/link";
 import "@fontsource/roboto";
 import React, { ReactElement, useEffect, useState, VFC } from "react";
@@ -24,6 +28,7 @@ import SelectBox from "../../components/molecules/selectBox";
 import CommonLayout from "../../components/templates/commonLayout";
 import { useFormValue } from "../../hooks/useFormValue";
 import { usePostSubmit } from "../../hooks/useSubmit";
+import { ImCancelCircle } from "react-icons/im";
 
 interface Category {
   id: string;
@@ -31,7 +36,7 @@ interface Category {
   slug: string;
 }
 
-const Index: React.VFC = () => {
+const Store: React.VFC<Props> = ({ images }) => {
   const [files, setFiles] = useState<{ preview: string }[]>([]);
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => {
@@ -71,8 +76,13 @@ const Index: React.VFC = () => {
     }
   );
 
-  const { state, handleChange, handleSelectChange, handleTextAreaChange } =
-    useFormValue({ mainImgUrl: "" });
+  const {
+    state,
+    handleChange,
+    handleSelectChange,
+    handleTextAreaChange,
+    handleRawValueChange,
+  } = useFormValue({ mainImgUrl: "" });
   const publicSubmit = usePostSubmit(
     process.env.NEXT_PUBLIC_API_URL!,
     process.env.NEXT_PUBLIC_API_ARTICLE_STORE!,
@@ -84,13 +94,17 @@ const Index: React.VFC = () => {
     { ...state, type: 2 }
   );
 
-  console.log(publicSubmit.errorMessages);
-  console.log(draftSubmit.errorMessages);
-
+  const [isOpenMainImages, setMainImageOpenStatus] = useState(false);
   return (
     <CommonLayout>
       {canRender ? (
         <>
+          <MainImageSelectingArea
+            isOpen={isOpenMainImages}
+            images={images}
+            setMainImageStatus={setMainImageOpenStatus}
+            handleChangeEvent={handleRawValueChange}
+          />
           <HeadingArea />
           {draftSubmit.isComplete || publicSubmit.isComplete ? (
             <Box mb="6">
@@ -108,6 +122,23 @@ const Index: React.VFC = () => {
             selectList={categories}
             handleChange={handleSelectChange}
           />
+          <Box mb={8}>
+            <Button
+              bg="#445273"
+              color="white"
+              onClick={() => {
+                setMainImageOpenStatus(true);
+              }}
+            >
+              Main Image
+            </Button>
+          </Box>
+          <Box mb={8}>
+            <SelectedMainImage
+              url={state.mainImgUrl}
+              handleChangeEvent={handleRawValueChange}
+            />
+          </Box>
           <Box mb={8}>
             <TextArea name="content" handleChange={handleTextAreaChange} />
           </Box>
@@ -222,4 +253,149 @@ const HandleArea: React.VFC<SubmitProps> = ({ draftSubmit, publicSubmit }) => {
   );
 };
 
-export default Index;
+interface SelectedMainImageProps {
+  url: string;
+  handleChangeEvent: (
+    fieldName: string,
+    setValue: string | number | boolean
+  ) => void;
+}
+
+const SelectedMainImage: React.VFC<SelectedMainImageProps> = ({
+  url,
+  handleChangeEvent,
+}) => {
+  if (url === "") {
+    return <></>;
+  }
+
+  return (
+    <Box pos="relative">
+      <Icon
+        as={ImCancelCircle}
+        fontSize="3xl"
+        color="red.700"
+        onClick={() => handleChangeEvent("mainImgUrl", "")}
+        pos="absolute"
+        left={280}
+        top={-2}
+        zIndex={100}
+      />
+      <Image
+        src={url}
+        alt={url}
+        w="300px"
+        h="300px"
+        objectFit="cover"
+        pos="relative"
+      />
+    </Box>
+  );
+};
+
+interface MainImageSelectingAreaProps {
+  setMainImageStatus: any;
+  isOpen: boolean;
+  images: Image[];
+  handleChangeEvent: (
+    fieldName: string,
+    setValue: string | number | boolean
+  ) => void;
+}
+
+const MainImageSelectingArea: React.VFC<MainImageSelectingAreaProps> = ({
+  setMainImageStatus,
+  isOpen,
+  images,
+  handleChangeEvent,
+}) => {
+  if (!isOpen) {
+    return <></>;
+  }
+
+  return (
+    <Center
+      bgColor="rgba(0,0,0,0.9)"
+      pos="fixed"
+      left={0}
+      top={0}
+      w="100vw"
+      minH="100vh"
+      zIndex={100}
+    >
+      <Center pos="relative">
+        <Icon
+          as={ImCancelCircle}
+          fontSize="3xl"
+          color="red.700"
+          onClick={() => setMainImageStatus(false)}
+          pos="absolute"
+          right="24%"
+          top={-2}
+          zIndex={100}
+        />
+        <Flex
+          flexWrap="wrap"
+          justify="space-between"
+          maxW="50%"
+          overflowY="scroll"
+          height="700px"
+          pos="relative"
+        >
+          {images.map((image) => {
+            if (image.url === null || image.url === undefined) {
+              return <></>;
+            }
+
+            return (
+              <Box
+                w="32%"
+                boxShadow="md"
+                mb={4}
+                key={image.id}
+                onClick={() => {
+                  handleChangeEvent("mainImgUrl", image.url!);
+                  setMainImageStatus(false);
+                }}
+              >
+                <Image
+                  src={image.url}
+                  alt={image.name}
+                  objectFit="cover"
+                  h={300}
+                  w="100%"
+                />
+              </Box>
+            );
+          })}
+        </Flex>
+      </Center>
+    </Center>
+  );
+};
+
+interface Image {
+  id: string;
+  name: string;
+  width: number;
+  height: number;
+  url?: string;
+  created_at: string;
+}
+
+interface Props {
+  images: Image[];
+}
+
+export const getStaticProps: GetStaticProps<Props> = async () => {
+  const { state } = await getApi(
+    process.env.NEXT_PUBLIC_API_IMAGE_INDEX!,
+    true
+  );
+
+  return {
+    props: { images: state.data.list },
+  };
+};
+
+export default Store;
