@@ -43,11 +43,17 @@ export const postApi = async <T>(
 };
 
 async function reBuild() {
+  console.log("start reBuild method.");
+  console.log("reBuild front: " + process.env.NEXT_PUBLIC_RE_BUILD_FRONT);
+  console.log("reBuild admin: " + process.env.NEXT_PUBLIC_RE_BUILD_ADMIN);
+
   if (process.env.NEXT_PUBLIC_RE_BUILD_FRONT != null) {
+    console.log("start reBuild Front");
     await axios.post(process.env.NEXT_PUBLIC_RE_BUILD_FRONT!, null);
   }
 
   if (process.env.NEXT_PUBLIC_RE_BUILD_ADMIN != null) {
+    console.log("start reBuild Admin");
     await axios.post(process.env.NEXT_PUBLIC_RE_BUILD_ADMIN!, null);
   }
 }
