@@ -22,6 +22,8 @@ export const putApi = async <T>(
     .then((res) => res)
     .catch((e) => e.response);
 
+  await reBuild();
+
   return getResult(executedApi);
 };
 
@@ -35,8 +37,20 @@ export const postApi = async <T>(
     .then((res) => res)
     .catch((e) => e.response);
 
+  await reBuild();
+
   return getResult(executedApi);
 };
+
+async function reBuild() {
+  if (process.env.NEXT_PUBLIC_RE_BUILD_FRONT != null) {
+    await axios.post(process.env.NEXT_PUBLIC_RE_BUILD_FRONT!, null);
+  }
+
+  if (process.env.NEXT_PUBLIC_RE_BUILD_ADMIN != null) {
+    await axios.post(process.env.NEXT_PUBLIC_RE_BUILD_ADMIN!, null);
+  }
+}
 
 function createAxios(isServerMode: boolean): AxiosInstance {
   return axios.create({
