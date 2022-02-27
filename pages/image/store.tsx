@@ -2,7 +2,7 @@ import { Box, Image, Input, Link, Text } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useState } from "react";
 import { postApi } from "../../api/api";
-import H1 from "../../components/molecules/heading";
+import H1 from "../../components/molecules/heading/heading";
 import CommonLayout from "../../components/templates/commonLayout";
 
 const Store: React.VFC = () => {

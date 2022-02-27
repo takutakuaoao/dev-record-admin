@@ -1,6 +1,6 @@
 import { Select } from "@chakra-ui/react";
 import { ReactElement } from "react";
-import SelectItem from "../atoms/selectItem";
+import SelectItem from "../../atoms/selectItem";
 
 interface Prop {
   children: ReactElement<typeof SelectItem>[];
