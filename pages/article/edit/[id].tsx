@@ -8,19 +8,22 @@ import {
   Flex,
   Input,
   Spacer,
-  Text,
 } from "@chakra-ui/react";
 import { GetStaticPaths, GetStaticProps } from "next";
 import Link from "next/link";
-import { ReactElement, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { getApi } from "../../../api/api";
 import SelectItem from "../../../components/atoms/selectItem";
 import TextArea from "../../../components/atoms/textArea/textArea";
 import H1 from "../../../components/molecules/heading/heading";
 import SelectBox from "../../../components/molecules/selectBox/selectBox";
 import CommonLayout from "../../../components/templates/commonLayout";
-import { useFormValue } from "../../../hooks/useFormValue";
-import { usePostSubmit, usePutSubmit } from "../../../hooks/useSubmit";
+import {
+  ArticleState,
+  useArticleFormValue,
+} from "../../../hooks/useArticleFormValue";
+import { useFetchCategories } from "../../../hooks/useFetchCategories";
+import { usePutSubmit } from "../../../hooks/useSubmit";
 
 interface Category {
   id: string;
@@ -49,87 +52,146 @@ interface Params extends ParsedUrlQuery {
 }
 
 const Edit: React.VFC<Props> = ({ article }) => {
-  const [posts, setPosts] = useState<Category[]>([]);
-  useEffect(() => {
-    getApi(process.env.NEXT_PUBLIC_API_CATEGORY_INDEX!, false).then(
-      ({ state }) => {
-        setPosts(state.data.items);
-      }
-    );
-  }, []);
-
-  const canRender = Object.keys(posts).length != 0;
-
-  const readyContent = (
-    <>
-      <Center w="100%" h="100vh">
-        ready ...
-      </Center>
-    </>
-  );
-
-  const categories: ReactElement<typeof SelectItem>[] = posts.map(
-    (post: Category, i): ReactElement<typeof SelectItem> => {
-      return <SelectItem name={post.name} value={post.id} key={i} />;
-    }
-  );
-
+  const categories = useFetchCategories();
   const { state, handleChange, handleSelectChange, handleTextAreaChange } =
-    useFormValue({
-        id: article.id,
-        title: article.title,
-        content: article.content,
-        slug: article.slug,
-        categoryId: article.category?.id,
-        mainImgUrl: article.main_img_url,
-    });
-  const publicSubmit = usePutSubmit(
-    process.env.NEXT_PUBLIC_API_URL!,
-    process.env.NEXT_PUBLIC_API_ARTICLE_UPDATE!,
-    { ...state, type: 1 }
-  );
-  const draftSubmit = usePutSubmit(
-    process.env.NEXT_PUBLIC_API_URL!,
-    process.env.NEXT_PUBLIC_API_ARTICLE_UPDATE!,
-    { ...state, type: 2 }
-  );
+    useArticleFormValue(article);
+  const publicSubmit = useEditPublicSubmit(state);
+  const draftSubmit = useEditDraftSubmit(state);
 
   return (
     <>
       <CommonLayout>
-        {canRender ? (
+        <ContentReady isActive={isReadyCategories(categories)}>
           <>
             <HeadingArea />
-            {draftSubmit.isComplete || publicSubmit.isComplete ? (
+            <ToggleArea
+              isRender={isCompleteUpdate(
+                draftSubmit.isComplete,
+                publicSubmit.isComplete
+              )}
+            >
               <Box mb="6">
-                <Alert status="success">
-                  <AlertIcon />
-                  更新しました。
-                </Alert>
+                <SuccessMessage />
               </Box>
-            ) : (
-              <></>
-            )}
-            <TitleArea handleChange={handleChange} currentValue={state.title} />
-            <SlugArea handleChange={handleChange} currentValue={state.slug} />
-            <ActionArea
-              selectList={categories}
-              handleChange={handleSelectChange}
-              currentValue={state.categoryId}
-            />
-            <Box mb={8}>
-              <TextArea name="content" handleChange={handleTextAreaChange} currentValue={state.content} />
-            </Box>
-            <HandleArea
+            </ToggleArea>
+            <EditForm
+              title={state.title}
+              slug={state.slug}
+              categories={categories}
+              categoryId={state.categoryId}
+              content={state.content}
               draftSubmit={draftSubmit.submit}
               publicSubmit={publicSubmit.submit}
+              handleInputChange={handleChange}
+              handleSelectChange={handleSelectChange}
+              handleTextAreaChange={handleTextAreaChange}
             />
           </>
-        ) : (
-          readyContent
-        )}
+        </ContentReady>
       </CommonLayout>
     </>
+  );
+};
+
+/**
+ * レンダー可能の場合に子要素を表示するエリア
+ */
+const ToggleArea: React.VFC<{ isRender: boolean; children: ReactNode }> = (
+  props
+) => {
+  if (!props.isRender) {
+    return <></>;
+  }
+
+  return <>{props.children}</>;
+};
+
+/**
+ * コンテンツ表示の準備が整うまでロード中の表記
+ * isActiveがtrueの場合：子要素を表示
+ * isActiveがfalseの場合：コンテンツ準備中の表記
+ */
+const ContentReady: React.VFC<{
+  isActive: boolean;
+  children: ReactNode;
+}> = (props) => {
+  if (!props.isActive) {
+    return <Loader />;
+  }
+
+  return <>{props.children}</>;
+};
+
+/**
+ * ロード表記
+ */
+const Loader: React.VFC = () => {
+  return (
+    <Center w="100%" h="100vh">
+      ready ...
+    </Center>
+  );
+};
+
+/**
+ * 編集入力フォームの型
+ */
+type EditFormProps = {
+  title?: string;
+  slug?: string;
+  categories: Category[];
+  categoryId?: string;
+  content?: string;
+  draftSubmit: any;
+  publicSubmit: any;
+  handleTextAreaChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  handleSelectChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+/**
+ * 編集入力フォーム
+ */
+const EditForm: React.VFC<EditFormProps> = (props) => {
+  return (
+    <>
+      <TitleArea
+        handleChange={props.handleInputChange}
+        currentValue={props.title}
+      />
+      <SlugArea
+        handleChange={props.handleInputChange}
+        currentValue={props.slug}
+      />
+      <ActionArea
+        categories={props.categories}
+        handleChange={props.handleSelectChange}
+        currentValue={props.categoryId}
+      />
+      <Box mb={8}>
+        <TextArea
+          name="content"
+          handleChange={props.handleTextAreaChange}
+          currentValue={props.content}
+        />
+      </Box>
+      <HandleArea
+        draftSubmit={props.draftSubmit}
+        publicSubmit={props.publicSubmit}
+      />
+    </>
+  );
+};
+
+/**
+ * 更新成功時のメッセージ
+ */
+const SuccessMessage: React.VFC = () => {
+  return (
+    <Alert status="success">
+      <AlertIcon />
+      更新しました。
+    </Alert>
   );
 };
 
@@ -143,10 +205,13 @@ const HeadingArea: React.VFC = () => {
 
 type ChangeHandleProps = {
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  currentValue?: string|number,
+  currentValue?: string | number;
 };
 
-const TitleArea: React.VFC<ChangeHandleProps> = ({ handleChange, currentValue }) => {
+const TitleArea: React.VFC<ChangeHandleProps> = ({
+  handleChange,
+  currentValue,
+}) => {
   return (
     <Box mb="6">
       <Input
@@ -160,7 +225,10 @@ const TitleArea: React.VFC<ChangeHandleProps> = ({ handleChange, currentValue })
   );
 };
 
-const SlugArea: React.VFC<ChangeHandleProps> = ({ handleChange, currentValue }) => {
+const SlugArea: React.VFC<ChangeHandleProps> = ({
+  handleChange,
+  currentValue,
+}) => {
   return (
     <Box mb="6">
       <Input
@@ -175,22 +243,24 @@ const SlugArea: React.VFC<ChangeHandleProps> = ({ handleChange, currentValue }) 
 };
 
 interface ActionAreaProps {
-  selectList: ReactElement<typeof SelectItem>[];
+  categories: Category[];
   handleChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-  currentValue?: string|number;
+  currentValue?: string | number;
 }
 
 const ActionArea: React.VFC<ActionAreaProps> = ({
-  selectList,
+  categories,
   handleChange,
   currentValue,
 }) => {
   return (
     <Flex mb="6">
       <Box w="30%">
-        <SelectBox name="categoryId" handleChange={handleChange} currentValue={currentValue}>
-          {selectList}
-        </SelectBox>
+        <CategorySelectBox
+          categories={categories}
+          handleChange={handleChange}
+          currentValue={currentValue}
+        />
       </Box>
       <Spacer />
       <Link href="/article/preview">
@@ -201,6 +271,32 @@ const ActionArea: React.VFC<ActionAreaProps> = ({
         </a>
       </Link>
     </Flex>
+  );
+};
+
+/**
+ * CategorySelectBoxのPropsの型
+ */
+interface CategorySelectBoxProps {
+  categories: Category[];
+  handleChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  currentValue?: string | number;
+}
+
+/**
+ * カテゴリ選択のセレクトボックス
+ */
+const CategorySelectBox: React.VFC<CategorySelectBoxProps> = (props) => {
+  return (
+    <SelectBox
+      name="categoryId"
+      handleChange={props.handleChange}
+      currentValue={props.currentValue}
+    >
+      {props.categories.map((category, i) => {
+        return <SelectItem name={category.name} value={category.id} key={i} />;
+      })}
+    </SelectBox>
   );
 };
 
@@ -219,6 +315,45 @@ const HandleArea: React.VFC<SubmitProps> = ({ draftSubmit, publicSubmit }) => {
         Publish
       </Button>
     </Flex>
+  );
+};
+
+/**
+ * 更新完了を判定
+ */
+function isCompleteUpdate(
+  isDraftComplete: boolean,
+  isPublicComplete: boolean
+): boolean {
+  return isDraftComplete || isPublicComplete;
+}
+
+/**
+ * カテゴリの取得が完了したかを判定
+ */
+function isReadyCategories(categories: Category[]): boolean {
+  return Object.keys(categories).length != 0;
+}
+
+/**
+ * 公開状態で更新用のSubmitのハンドラー
+ */
+const useEditPublicSubmit = (state: ArticleState) => {
+  return usePutSubmit(
+    process.env.NEXT_PUBLIC_API_URL!,
+    process.env.NEXT_PUBLIC_API_ARTICLE_UPDATE!,
+    { ...state, type: 1 }
+  );
+};
+
+/**
+ * 下書き状態で更新用のSubmitのハンドラー
+ */
+const useEditDraftSubmit = (state: ArticleState) => {
+  return usePutSubmit(
+    process.env.NEXT_PUBLIC_API_URL!,
+    process.env.NEXT_PUBLIC_API_ARTICLE_UPDATE!,
+    { ...state, type: 2 }
   );
 };
 

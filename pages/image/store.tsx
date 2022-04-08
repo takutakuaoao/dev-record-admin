@@ -1,9 +1,7 @@
-import { Box, Image, Input, Link, Text } from "@chakra-ui/react";
-import NextLink from "next/link";
-import { useState } from "react";
+import React, { useState } from "react";
 import { postApi } from "../../api/api";
-import H1 from "../../components/molecules/heading/heading";
-import CommonLayout from "../../components/templates/commonLayout";
+import AccessURL from "../../components/molecules/accessURL/accessURL";
+import StoreTemplate from "../../components/templates/image/store/storeTemplate";
 
 const Store: React.VFC = () => {
   const [imageUrl, setImageUrl] = useState("");
@@ -22,39 +20,44 @@ const Store: React.VFC = () => {
 
   return (
     <>
-      <CommonLayout>
-        <Box mb="8">
-          <H1 title="New Image" />
-        </Box>
-        <Box mb="8">
-          <Input type="file" onChange={uploadImage} />
-        </Box>
-        <UploadedLinkRender url={imageUrl} />
-      </CommonLayout>
+      <StoreTemplate
+        uploadImageHandle={uploadImage}
+        uploadedImageUrl={imageUrl}
+      >
+
+      </StoreTemplate>
     </>
   );
 };
 
-interface Props {
-  url: string;
+const Uploaded: React.VFC<{url: string}> = ({url}) => {
+  return <AccessURL url={url} />
 }
 
-const UploadedLinkRender: React.VFC<Props> = ({ url }) => {
-  if (url === "") {
-    return <></>;
-  }
-  return (
-    <Box>
-      <Text fontWeight="bold" fontSize="xl">
-        Access URL
-      </Text>
-      <NextLink href={url} passHref>
-        <Link isExternal target="_blank" color="blue.700">
-          {url}
-        </Link>
-      </NextLink>
-    </Box>
-  );
-};
+const NotYetUpload: React.VFC = () => {
+  return <></>;
+}
+
+// interface Props {
+//   url: string;
+// }
+
+// const UploadedLinkRender: React.VFC<Props> = ({ url }) => {
+//   if (url === "") {
+//     return <></>;
+//   }
+//   return (
+//     <Box>
+//       <Text fontWeight="bold" fontSize="xl">
+//         Access URL
+//       </Text>
+//       <NextLink href={url} passHref>
+//         <Link isExternal target="_blank" color="blue.700">
+//           {url}
+//         </Link>
+//       </NextLink>
+//     </Box>
+//   );
+// };
 
 export default Store;
